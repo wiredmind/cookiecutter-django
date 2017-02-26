@@ -13,35 +13,22 @@ You'll need at least Docker 1.10.
 
 If you don't already have it installed, follow the instructions for your OS:
 
- - On Mac OS X/Windows, you'll need `Docker Toolbox`_
+ - On Mac OS X, you'll need `Docker for Mac`_
+ - On Windows, you'll need `Docker for Windows`_
  - On Linux, you'll need `docker-engine`_
-.. _`Docker Toolbox`: https://github.com/docker/toolbox/releases
+.. _`Docker for Mac`: https://docs.docker.com/engine/installation/mac/
+.. _`Docker for Windows`: https://docs.docker.com/engine/installation/windows/
 .. _`docker-engine`: https://docs.docker.com/engine/installation/
 
-Create the Machine (Optional)
------------------------------
+Attention Windows users
+-------------
 
-On Linux you have native Docker, so you don't need to create a VM with
-docker-machine to use it.
+Currently PostgreSQL (``psycopg2`` python package) is not installed inside Docker containers for Windows users, while it is required by the generated Django project. To fix this, add ``psycopg2`` to the list of requirements inside ``requirements/base.txt``::
 
-However, on Mac/Windows/other systems without native Docker, you'll want to
-start by creating a VM with docker-machine::
+    # Python-PostgreSQL Database Adapter
+    psycopg2==2.6.2
 
-    $ docker-machine create --driver virtualbox dev1
-
-**Note:** If you want to have more than one docker development environment, then
-name them accordingly. Instead of 'dev1' you might have 'dev2', 'myproject',
-'djangopackages', et al.
-
-Get the IP Address
-------------------
-
-Once your machine is up and running, run this::
-
-    $ docker-machine ip dev1
-    123.456.789.012
-
-This is also the IP address where the Django project will be served from.
+Doing this will prevent the project from being installed in an Windows-only environment (thus without usage of Docker). If you want to use this project without Docker, make sure to remove ``psycopg2`` from the requirements again.
 
 Build the Stack
 ---------------
@@ -85,6 +72,11 @@ To migrate your app and to create a superuser, run::
     $ docker-compose -f dev.yml run django python manage.py createsuperuser
 
 Here we specify the ``django`` container as the location to run our management commands.
+
+Add your Docker development server IP
+------------------------------------
+
+When ``DEBUG`` is set to `True`, the host is validated against ``['localhost', '127.0.0.1', '[::1]']``. This is adequate when running a ``virtualenv``. For Docker, in the ``config.settings.local``, add your host development server IP to ``INTERNAL_IPS`` or ``ALLOWED_HOSTS`` if the variable exists.
 
 Production Mode
 ~~~~~~~~~~~~~~~
